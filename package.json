@@ -1,0 +1,17 @@
+{
+  "name": "permit2-gasless-dapp",
+  "version": "1.0.0",
+  "description": "Permit2 Gasless Transfer with Wagmi v2",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "wagmi": "^2.0.0",
+    "viem": "^2.0.0",
+    "web3modal": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "typescript": "^5.0.0"
+  }
+}
