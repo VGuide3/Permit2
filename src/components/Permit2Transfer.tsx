@@ -138,6 +138,14 @@ export default function Permit2Transfer() {
       return;
     }
 
+    if (spenderAddress.toLowerCase() !== address.toLowerCase()) {
+      setStatus('error');
+      setMessage(
+        'This demo submits permitTransferFrom from your connected wallet, so spender must match that address (or leave it blank).',
+      );
+      return;
+    }
+
     setStatus('loading');
     setTxHash(undefined);
 
