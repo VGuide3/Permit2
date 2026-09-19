@@ -1,17 +1,27 @@
 {
   "name": "permit2-gasless-dapp",
   "version": "1.0.0",
-  "description": "Permit2 Gasless Transfer with Wagmi v2",
+  "private": true,
+  "type": "module",
+  "description": "Permit2 transfer + custom contract dapp (Vite, React, Wagmi v2)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "wagmi": "^2.0.0",
-    "viem": "^2.0.0",
-    "web3modal": "^3.0.0"
+    "@rainbow-me/rainbowkit": "^2.2.8",
+    "@tanstack/react-query": "^5.84.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "viem": "^2.31.7",
+    "wagmi": "^2.16.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
-    "typescript": "^5.0.0"
+    "@types/react": "^18.3.23",
+    "@types/react-dom": "^18.3.7",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
   }
 }

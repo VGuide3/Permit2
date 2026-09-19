@@ -1,97 +1,37 @@
-# How Custom Smart Contracts Work
+# Custom smart contract tab
 
-## Quick Setup (3 Steps)
+The Custom Contract view uses the same Wagmi v2 + RainbowKit provider as the Permit2 tab. The address and ABI shipped here are placeholders.
 
-### 1. Update customContract.config.ts
-```typescript
-export const CUSTOM_CONTRACT = {
-  address: '0xYourContractAddress', // Your contract address
-  chainId: 1,                       // Network ID
-  name: 'MyContract'
-};
+## 1. Set the address
 
-export const CUSTOM_CONTRACT_ABI = [
-  // Paste your ABI from Etherscan here
-];
+In `.env.local`:
+
+```bash
+VITE_CUSTOM_CONTRACT_ADDRESS=0xYourDeployedContract
+VITE_CUSTOM_CONTRACT_CHAIN_ID=1
 ```
 
-### 2. Get Contract ABI
-- Go to https://etherscan.io
-- Search your contract
-- Copy ABI from "Contract" tab
-- Paste into customContract.config.ts
+Or edit `src/config/customContract.ts`.
 
-### 3. Use Component
-```tsx
-import CustomContractDapp from './CustomContractDapp';
+## 2. Replace the ABI
 
-export default function App() {
-  return <CustomContractDapp />;
-}
-```
+Paste the verified ABI from Etherscan (or your compiler output) into `CUSTOM_CONTRACT_ABI` in `src/config/customContract.ts`.
 
-## How It Works
-
-```
-Your Dapp (CustomContractDapp.tsx)
-        ↓
-Uses Wagmi (useContractWrite)
-        ↓
-Calls Your Smart Contract
-        ↓
-Executes Function on Blockchain
-        ↓
-Shows Result
-```
-
-## Function Mapping
-
-Your contract function → Dapp form:
+The stub ABI exposes:
 
 ```solidity
-// Smart Contract
 function transferTokens(address token, address to, uint256 amount) external
-
-// Becomes in Dapp
-transferTokens({
-  args: [tokenAddress, recipientAddress, amount]
-})
 ```
 
-## Multiple Functions Example
+The form calls that function. If your contract uses different names or arguments, update both the ABI and `src/components/CustomContractDapp.tsx`.
 
-If your contract has multiple functions:
+## 3. Run the app
 
-```typescript
-// In customContract.config.ts
-export const CUSTOM_CONTRACT_ABI = [
-  {
-    name: 'transferTokens',
-    // ...
-  },
-  {
-    name: 'swap',
-    // ...
-  },
-  {
-    name: 'stake',
-    // ...
-  }
-];
+```bash
+npm install
+npm run dev
 ```
 
-Create separate components for each or extend CustomContractDapp to handle multiple functions.
+Connect a wallet, switch to the contract's chain if prompted, then submit.
 
-## Edit & Deploy
-
-Edit `CustomContractDapp.tsx` to:
-- Change UI/CSS
-- Modify form fields
-- Add validation
-- Handle custom logic
-
-Then integrate into your website.
-
----
-
-**Done! Your custom contract is now connected.** 🚀
+Until a valid `VITE_CUSTOM_CONTRACT_ADDRESS` is set, the Execute button stays disabled so you cannot send a transaction to a fake address.
