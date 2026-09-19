@@ -1,186 +1,72 @@
-# Permit2 Gasless Dapp - Complete Setup
+# Permit2 Dapp
 
-## Quick Start
+Vite + React + TypeScript app for Uniswap Permit2 `permitTransferFrom` and a placeholder custom-contract form. Wallet UX is RainbowKit on Wagmi v2 / viem v2.
 
-### 1. Install Dependencies
+## Run
+
+Requires Node.js 18+.
+
 ```bash
 npm install
-```
-
-### 2. Set Environment Variables
-Copy `.env.example` to `.env.local`:
-```bash
 cp .env.example .env.local
+# fill in at least VITE_WALLETCONNECT_PROJECT_ID for WalletConnect wallets
+npm run dev
 ```
 
-Fill in your values:
-- `REACT_APP_ALCHEMY_KEY` - Get from https://www.alchemy.com/
-- `REACT_APP_WALLET_CONNECT_ID` - Get from https://cloud.walletconnect.com/
-- `REACT_APP_TOKEN_ADDRESS` - Your ERC20 token address
-- `REACT_APP_CHAIN_ID` - Network ID (1=Mainnet, 11155111=Sepolia)
+The dev server prints a local URL (typically `http://localhost:5173`).
 
-### 3. Run the App
 ```bash
-npm start
+npm run build    # typecheck + production build
+npm run preview  # serve the production build
 ```
 
-## File Structure
+## Environment variables
+
+Copy `.env.example` to `.env.local`. Vite only exposes variables prefixed with `VITE_`.
+
+| Variable | Purpose |
+| --- | --- |
+| `VITE_WALLETCONNECT_PROJECT_ID` | WalletConnect / Reown Cloud project ID. Injected wallets work without it. Get one at https://cloud.reown.com/ |
+| `VITE_ALCHEMY_API_KEY` | Optional Alchemy key. Empty falls back to public RPC. |
+| `VITE_CHAIN_ID` | Target chain for Permit2 (`1` mainnet, `11155111` Sepolia). |
+| `VITE_TOKEN_ADDRESS` | Optional ERC-20 to prefill the Permit2 form. |
+| `VITE_PERMIT2_ADDRESS` | Permit2 contract. Defaults to the canonical Uniswap deployment `0x000000000022D473030F116dFC393057B8271cAA`. |
+| `VITE_CUSTOM_CONTRACT_ADDRESS` | Your contract for the Custom Contract tab (placeholder until set). |
+| `VITE_CUSTOM_CONTRACT_CHAIN_ID` | Chain for that contract (defaults to `VITE_CHAIN_ID`). |
+
+Do not put private keys or other secrets in `VITE_*` variables — they are bundled into the client.
+
+## What this app does
+
+### Permit2 transfer
+
+1. Connect a wallet with RainbowKit.
+2. Approve the ERC-20 for Permit2 if allowance is too low.
+3. Sign real EIP-712 typed data (`PermitTransferFrom` / `TokenPermissions`) with the connected wallet.
+4. Call Permit2 `permitTransferFrom` with that signature (not a `0x` stub).
+
+Permit2 nonces are unordered bitmap nonces — pick an unused value in Advanced options. The signed `spender` must be `msg.sender` of the `permitTransferFrom` transaction; this demo defaults spender to the connected wallet so it can self-submit.
+
+Signing is off-chain. Submitting `permitTransferFrom` still costs gas unless you add a relayer.
+
+### Custom contract
+
+Same Wagmi provider. The ABI and address are placeholders — replace them in `src/config/customContract.ts` (see `CUSTOM_CONTRACT_SETUP.md`) before sending transactions.
+
+## Layout
 
 ```
-.
-├── permit2-wagmi-complete.tsx   # Main component with all UI & logic
-├── wagmi.config.tsx             # Wagmi configuration
-├── package.json                 # Dependencies
-└── .env.example                 # Environment variables template
+src/
+  main.tsx                 # WagmiProvider + RainbowKitProvider
+  App.tsx                  # Connect button + tabs
+  components/
+    Permit2Transfer.tsx
+    CustomContractDapp.tsx
+  config/
+    wagmi.ts               # RainbowKit getDefaultConfig (Wagmi v2)
+    permit2.ts             # Permit2 ABI + EIP-712 types
+    customContract.ts      # Placeholder ABI/address
+    env.ts
 ```
 
-## Component Features
-
-✅ **Wallet Connect Integration** - MetaMask + WalletConnect  
-✅ **Transaction State Management** - Loading, success, error states  
-✅ **Advanced Options** - Nonce & deadline customization  
-✅ **Fully Editable CSS** - Styled with inline JSX styles  
-✅ **Responsive UI** - Works on mobile & desktop  
-✅ **Error Handling** - User-friendly error messages  
-
-## Customization
-
-### Edit Colors
-Open `permit2-wagmi-complete.tsx` and modify the `style jsx` section:
-
-```tsx
-// Change primary color
-background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-
-// To:
-background: linear-gradient(135deg, #YOUR_COLOR 0%, #YOUR_COLOR_DARK 100%);
-```
-
-### Edit Transaction Logic
-Modify the `handlePermitTransfer` function to customize:
-- Permit data
-- Signature handling
-- Gas estimation
-
-### Add More Networks
-Update `wagmi.config.tsx`:
-
-```tsx
-import { polygon, arbitrum } from 'wagmi/chains';
-
-const { chains, publicClient } = configureChains(
-  [mainnet, sepolia, polygon, arbitrum],
-  [...]
-);
-```
-
-## Usage Example
-
-```tsx
-import App from './wagmi.config';
-
-function MyApp() {
-  return <App />;
-}
-```
-
-## Integrate into Existing Website
-
-Copy all 3 files to your project:
-
-```
-your-website/
-├── src/
-│   ├── components/
-│   │   ├── permit2-wagmi-complete.tsx
-│   │   └── wagmi.config.tsx
-│   └── App.tsx
-└── .env.local
-```
-
-Then import:
-
-```tsx
-import App from './components/wagmi.config';
-
-export default function Page() {
-  return <App />;
-}
-```
-
-## Transaction Flow
-
-1. User connects wallet (MetaMask/WalletConnect)
-2. Fills form: amount, recipient, token
-3. Clicks "Send Gasless"
-4. Component creates permit data
-5. Wagmi executes transaction
-6. Shows status: loading → success/error
-7. Provides etherscan link
-
-## Environment Setup (Step by Step)
-
-### Get Alchemy Key
-1. Go to https://www.alchemy.com/
-2. Sign up/Login
-3. Create new app
-4. Copy API key
-5. Add to `.env.local`
-
-### Get WalletConnect ID
-1. Go to https://cloud.walletconnect.com/
-2. Sign up/Login
-3. Create new project
-4. Copy Project ID
-5. Add to `.env.local`
-
-## Debugging
-
-Enable console logs by uncommenting in `permit2-wagmi-complete.tsx`:
-
-```tsx
-console.log('Permit Data:', permitData);
-console.log('Transaction:', tx);
-```
-
-## API Reference
-
-### Component Props
-
-```tsx
-<Permit2Gasless 
-  tokenAddress="0x..." // ERC20 token address (required)
-  chainId={1}          // Network ID (default: 1 - mainnet)
-/>
-```
-
-### State Variables (Editable)
-
-- `recipient` - Recipient wallet address
-- `amount` - Transfer amount in decimals
-- `nonce` - Permit nonce (auto: 0)
-- `deadline` - Unix timestamp (auto: +1 hour)
-
-### Status States
-
-- `idle` - Default state
-- `loading` - Processing transaction
-- `success` - Transaction submitted
-- `error` - Transaction failed
-
-## Testing
-
-### Test on Sepolia Testnet
-1. Set `REACT_APP_CHAIN_ID=11155111`
-2. Get testnet tokens from faucet
-3. Test without real funds
-
-## Support
-
-- Wagmi Docs: https://wagmi.sh/
-- Permit2 Docs: https://permit2.uniswap.io/
-- WalletConnect: https://docs.walletconnect.com/
-
----
-
-**Ready to use! Edit CSS/UI as needed.** ✅
+Supported chains in `src/config/wagmi.ts`: Ethereum mainnet and Sepolia. Add more there if needed.
